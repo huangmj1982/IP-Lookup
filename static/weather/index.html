@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>天气查询</title>
+<style>
+html,body{height:100%;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,sans-serif;color:#fff}
+.bg{position:fixed;inset:0;background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1950&q=80');background-size:cover;background-position:center;filter:saturate(1.05) contrast(0.95) brightness(0.9);animation:pan 36s linear infinite alternate}
+@keyframes pan{0%{background-position:30% 50%}100%{background-position:70% 50%}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35)}
+.wrap{position:relative;height:100%;display:grid;place-items:center;padding:24px}
+.card{width:min(780px,92vw);background:rgba(20,20,22,.72);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px);border-radius:16px;padding:28px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.title{font-size:28px;font-weight:700;letter-spacing:.5px;margin:0 0 16px}
+.row{display:flex;gap:12px}
+.row input{flex:1;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;padding:0 14px;outline:none}
+.row button{height:44px;padding:0 18px;border-radius:12px;border:none;cursor:pointer;background:#00c2ff;color:#08212b;font-weight:700}
+.result{margin-top:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.item{display:flex;justify-content:space-between;gap:10px}
+.error{margin-top:12px;color:#ffb4b4;font-weight:600}
+.footer{margin-top:14px;font-size:12px;opacity:.8}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="overlay"></div>
+<div class="wrap">
+  <div class="card">
+    <h1 class="title">天气查询</h1>
+    <div class="row">
+      <input id="city" type="text" placeholder="请输入城市，例如 北京">
+      <button id="query">查询</button>
+    </div>
+    <div id="error" class="error" style="display:none"></div>
+    <div id="result" class="result" style="display:none">
+      <div class="grid" id="grid"></div>
+      <div class="footer" id="footer"></div>
+    </div>
+  </div>
+</div>
+<script>
+const city = document.getElementById('city');
+const btn = document.getElementById('query');
+const err = document.getElementById('error');
+const box = document.getElementById('result');
+const grid = document.getElementById('grid');
+const footer = document.getElementById('footer');
+
+function showError(m){ err.textContent=m; err.style.display='block'; box.style.display='none'; }
+function clearError(){ err.style.display='none'; err.textContent=''; }
+function fill(k,v){ const d=document.createElement('div'); d.className='item'; const a=document.createElement('div'); a.textContent=k; a.style.opacity='0.8'; const b=document.createElement('div'); b.textContent=v??'-'; b.style.fontWeight='600'; d.appendChild(a); d.appendChild(b); grid.appendChild(d); }
+
+async function queryCity(name){
+  const u=new URL('https://geocoding-api.open-meteo.com/v1/search');
+  u.searchParams.set('name',name);
+  u.searchParams.set('count','1');
+  u.searchParams.set('language','zh');
+  u.searchParams.set('format','json');
+  const r=await fetch(u);
+  if(!r.ok) throw new Error('城市查询失败');
+  const data=await r.json();
+  const res=data.results||[]; if(!res.length) throw new Error('未找到该城市');
+  return res[0];
+}
+
+async function queryWeather(lat,lon){
+  const u=new URL('https://api.open-meteo.com/v1/forecast');
+  u.searchParams.set('latitude',lat);
+  u.searchParams.set('longitude',lon);
+  u.searchParams.set('current','temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m');
+  u.searchParams.set('hourly','temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code');
+  u.searchParams.set('timezone','auto');
+  const r=await fetch(u);
+  if(!r.ok) throw new Error('天气查询失败');
+  return await r.json();
+}
+
+async function run(){
+  try{
+    clearError(); grid.innerHTML='';
+    const name=(city.value||'').trim(); if(!name) return showError('请输入城市');
+    const loc=await queryCity(name);
+    const data=await queryWeather(loc.latitude,loc.longitude);
+    const cur=data.current||{};
+    fill('地点', `${loc.name} / ${loc.country}`);
+    fill('气温', `${cur.temperature_2m}°C`);
+    fill('体感', `${cur.apparent_temperature}°C`);
+    fill('湿度', `${cur.relative_humidity_2m}%`);
+    fill('风速/风向', `${cur.wind_speed_10m} m/s / ${cur.wind_direction_10m}°`);
+    box.style.display='block';
+    footer.textContent=`数据来源: Open-Meteo · ${new Date().toLocaleString('zh-CN')}`;
+  }catch(e){ showError(e.message||'发生错误'); }
+}
+
+btn.addEventListener('click', run);
+city.addEventListener('keydown', e=>{ if(e.key==='Enter') run(); });
+</script>
+</body>
+</html>

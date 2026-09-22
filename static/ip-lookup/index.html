@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IP地址查询</title>
+<style>
+html, body { height: 100%; margin: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif; color: #fff; }
+.bg {
+  position: fixed; inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1950&q=80');
+  background-size: cover; background-position: center;
+  filter: saturate(1.05) contrast(0.95) brightness(0.9);
+  animation: pan 36s linear infinite alternate;
+}
+@keyframes pan { 0% { background-position: 30% 50%; } 100% { background-position: 70% 50%; } }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); }
+.wrap {
+  position: relative; height: 100%; display: grid; place-items: center; padding: 24px;
+}
+.card {
+  width: min(820px, 92vw);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))
+    , rgba(20, 20, 22, 0.64);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(8px);
+  border-radius: 18px; padding: 30px 30px 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.40);
+}
+.title { font-size: 30px; font-weight: 800; letter-spacing: 0.5px; margin: 0 0 16px; }
+.desc { font-size: 14px; opacity: 0.85; margin: 0 0 18px; }
+.row { display: flex; gap: 12px; }
+.row input {
+  flex: 1; height: 46px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.12); color: #fff; padding: 0 14px; outline: none;
+  transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
+}
+.row input::placeholder { color: rgba(255,255,255,0.75); }
+.row input:focus { border-color: rgba(0,194,255,0.75); box-shadow: 0 0 0 3px rgba(0,194,255,0.25); background: rgba(255,255,255,0.16); }
+.row button {
+  height: 46px; padding: 0 20px; border-radius: 12px; border: none; cursor: pointer;
+  background: linear-gradient(135deg,#00c2ff,#58ffde); color: #08212b; font-weight: 800;
+  box-shadow: 0 6px 16px rgba(0,194,255,0.3);
+  transition: transform .1s ease, box-shadow .2s ease;
+}
+.row button:hover { box-shadow: 0 10px 24px rgba(0,194,255,0.38); }
+.row button:active { transform: translateY(1px); }
+.tools { margin-top: 10px; display: flex; gap: 10px; }
+.tools button { height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.16); cursor: pointer; background: rgba(255,255,255,0.12); color: #fff; }
+.tools button:hover { background: rgba(255,255,255,0.18); }
+.result { margin-top: 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 16px; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.item { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); }
+.key { opacity: 0.85; }
+.val { font-weight: 700; }
+.error { margin-top: 12px; color: #ffb4b4; font-weight: 600; }
+.footer { margin-top: 14px; font-size: 12px; opacity: 0.8; display: flex; justify-content: space-between; align-items: center; }
+.footer::after { content: ""; display: inline-block; height: 1px; flex: 1; margin-left: 10px; background: linear-gradient(90deg, rgba(255,255,255,0.25), rgba(255,255,255,0)); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="overlay"></div>
+<div class="wrap">
+  <div class="card">
+    <h1 class="title">IP地址查询</h1>
+    
+    <div class="row">
+      <input id="ip" type="text" placeholder="请输入IP地址，例如 8.8.8.8">
+      <button id="query">查询</button>
+    </div>
+    <div class="tools">
+      <button id="myip">查询我的IP</button>
+      <button id="sample">示例: 8.8.8.8</button>
+    </div>
+    <div id="error" class="error" style="display:none"></div>
+    <div id="result" class="result" style="display:none">
+      <div class="grid" id="grid"></div>
+      <div class="footer" id="footer"></div>
+    </div>
+  </div>
+</div>
+<script>
+const ipInput = document.getElementById('ip');
+const btnQuery = document.getElementById('query');
+const btnMyIp = document.getElementById('myip');
+const btnSample = document.getElementById('sample');
+const resultBox = document.getElementById('result');
+const grid = document.getElementById('grid');
+const footer = document.getElementById('footer');
+const errorBox = document.getElementById('error');
+
+function showError(msg){ errorBox.textContent = msg; errorBox.style.display = 'block'; resultBox.style.display = 'none'; }
+function clearError(){ errorBox.style.display = 'none'; errorBox.textContent = ''; }
+function render(data){
+  clearError();
+  const fields = [
+    ['IP', data.ip ?? data.query],
+    ['国家', data.country_name ?? data.country],
+    ['地区', data.region ?? data.region_code ?? data.regionName],
+    ['城市', data.city],
+    ['邮编', data.postal ?? data.zip],
+    ['运营商', data.org ?? data.isp],
+    ['ASN', data.asn ?? data.as],
+    ['纬度', data.latitude ?? data.lat],
+    ['经度', data.longitude ?? data.lon],
+    ['时区', data.timezone]
+  ];
+  grid.innerHTML = '';
+  fields.forEach(([k,v]) => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    const kk = document.createElement('div'); kk.className = 'key'; kk.textContent = k;
+    const vv = document.createElement('div'); vv.className = 'val'; vv.textContent = v ?? '-';
+    div.appendChild(kk); div.appendChild(vv);
+    grid.appendChild(div);
+  });
+  const source = data.__source || ((data.query !== undefined || data.lat !== undefined) ? 'ip-api.com' : 'ipapi.co');
+  footer.textContent = `数据来源: ${source} · ${new Date().toLocaleString('zh-CN')}`;
+  resultBox.style.display = 'block';
+}
+
+function isValidIp(ip){
+  const ipv4 = /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/;
+  const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$|^([0-9a-fA-F]{0,4}:){1,7}:$/;
+  return ipv4.test(ip) || ipv6.test(ip);
+}
+
+const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+const FETCH_TIMEOUT = 8000;
+
+async function fetchLocalProxy(ip){
+  const r = await fetch(`http://127.0.0.1:8090/ip?q=${encodeURIComponent(ip)}`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+  if(!r.ok) throw new Error('本地代理失败');
+  const d = await r.json();
+  if(d.error) throw new Error(d.error.message || '代理查询失败');
+  d.__source = '本地代理';
+  return d;
+}
+async function fetchIpApiCom(ip){
+  const r = await fetch(`http://ip-api.com/json/${encodeURIComponent(ip)}?lang=zh-CN`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+  if(!r.ok) throw new Error('查询失败');
+  const d = await r.json();
+  if(d.status === 'fail') throw new Error(d.message || '无效的IP');
+  d.__source = 'ip-api.com';
+  return d;
+}
+async function fetchIpapiCo(ip){
+  const r = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+  if(!r.ok) throw new Error('查询失败');
+  const d = await r.json();
+  if(d.error) throw new Error(d.reason || '无效的IP');
+  d.__source = 'ipapi.co';
+  return d;
+}
+
+async function fetchIp(ip){
+  try {
+    clearError();
+    setBusy(true);
+    const providers = [];
+    if (isLocal) providers.push(fetchLocalProxy);
+    if (location.protocol === 'https:') {
+      providers.push(fetchIpapiCo);
+    } else {
+      providers.push(fetchIpApiCom, fetchIpapiCo);
+    }
+    let data;
+    for (const p of providers) {
+      try { data = await p(ip); break; } catch (_) {}
+    }
+    if (!data) throw new Error('所有查询源均失败，请稍后重试');
+    render(data);
+  } catch(e){
+    showError(e.message || '网络错误，请重试');
+  } finally {
+    setBusy(false);
+  }
+}
+
+function setBusy(busy){
+  btnQuery.disabled = busy;
+  btnMyIp.disabled = busy;
+  btnSample.disabled = busy;
+  btnQuery.textContent = busy ? '查询中…' : '查询';
+}
+
+btnQuery.addEventListener('click', () => {
+  const ip = (ipInput.value || '').trim();
+  if(!ip) { showError('请输入IP地址'); return; }
+  if(!isValidIp(ip)) { showError('IP地址格式不正确'); return; }
+  fetchIp(ip);
+});
+
+btnMyIp.addEventListener('click', async () => {
+  try {
+    setBusy(true);
+    let ip;
+    try {
+      const r0 = await fetch('https://ip.cn/api/index?type=0', { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+      if(!r0.ok) throw new Error('ip.cn失败');
+      const d0 = await r0.json();
+      ip = d0.ip || '';
+    } catch (_) {
+      const r1 = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+      if(!r1.ok) throw new Error('获取IP失败');
+      const j1 = await r1.json();
+      ip = j1.ip || '';
+    }
+    if(!ip) throw new Error('获取IP为空');
+    ipInput.value = ip;
+    await fetchIp(ip);
+  } catch(e){ showError(e.message || '获取本机IP失败'); }
+  finally { setBusy(false); }
+});
+
+btnSample.addEventListener('click', () => { ipInput.value = '8.8.8.8'; fetchIp('8.8.8.8'); });
+
+ipInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') btnQuery.click(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态生成系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>多模态生成系统</h1>
+        
+        <div class="controls">
+            <div class="form-group">
+                <label for="prompt">对话内容:</label>
+                <textarea id="prompt" placeholder="请输入您的对话内容..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="modelSelect">模型选择:</label>
+                <select id="modelSelect">
+                    <option value="doubao-seed-1-6-251015">Doubao Seed 1.6 (对话)</option>
+                    <option value="doubao-seedream-4-5-251128">Doubao Seedream 4.5 (图片)</option>
+                    <option value="doubao-seedance-1-0-pro-250528">Doubao Seedance 1.0 Pro (视频)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="fileInput">上传文件:</label>
+                <input type="file" id="fileInput" multiple>
+            </div>
+            
+            <div class="checkbox-group">
+                <label for="autoUpload">
+                    <input type="checkbox" id="autoUpload">自动上传
+                </label>
+                <label for="autoSelect">
+                    <input type="checkbox" id="autoSelect">自动选模
+                </label>
+            </div>
+            
+            <button id="submitBtn" class="btn btn-primary">提交请求</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/logic.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
