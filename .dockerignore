@@ -1,7 +1,3 @@
-# 操作系统
-.DS_Store
-Thumbs.db
-
 # Python 缓存
 __pycache__/
 *.py[cod]
@@ -12,6 +8,21 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .tox/
+
+# 覆盖率
+.coverage
+coverage.xml
+htmlcov/
+
+# 日志与临时文件
+*.log
+*.tmp
+*.swp
+
+# 构建产物
+dist/
+build/
+*.egg-info/
 
 # 环境变量（保留模板）
 .env
@@ -28,8 +39,13 @@ venv/
 # 前端依赖
 node_modules/
 
-# IDE
+# 操作系统与 IDE
+.DS_Store
+Thumbs.db
 .idea/
 
-# 日志
-*.log
+# Git 与 Docker 元数据
+.git/
+.gitignore
+Dockerfile*
+.dockerignore

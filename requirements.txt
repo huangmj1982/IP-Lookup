@@ -1,0 +1,8 @@
+# veADK 依赖（veadk-python[extensions] 已包含 veadk-python 本体）
+veadk-python[extensions]==0.5.12
+
+# 环境变量加载（veadk 读取 .env 时使用）
+python-dotenv==1.2.1
+
+# IP 归属地查询工具的 HTTP 请求
+requests==2.32.5
