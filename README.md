@@ -2,7 +2,7 @@
 
 基于火山引擎 veADK（Agent Development Kit）构建的 IP 地址查询 Agent。
 
-利用能力方便查询
+在对话界面中用自然语言提问即可完成查询，无需手动打开页面填写 IP。
 
 原始的 IP 地址查询页面（`static/ip-lookup/index.html`）只支持在浏览器里手动输入 IP 查询，本项目把其中的查询逻辑改写为 veADK 工具，做成一个可以用自然语言对话的 Agent。
 
