@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>猴子捞月 · SVG 动画</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, #0a1226, #16233f);
+    font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .stage { width: min(94vw, 960px); }
+  h1 {
+    color: #f5e9c8;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 10px;
+    margin: 0 0 6px;
+    text-shadow: 0 0 18px rgba(255, 236, 170, 0.35);
+  }
+  p.caption {
+    color: #8fb0d6;
+    text-align: center;
+    margin: 0 0 16px;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>猴 子 捞 月</h1>
+  <p class="caption">群猴倒挂枝头，探手去捞水中月 —— 水中月，捞不起</p>
+  <svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="猴子捞月故事的 SVG 动画：一群猴子倒挂在树上，尝试捞取水中的月亮倒影">
+    <defs>
+      <!-- 天空与水面渐变 -->
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#0b1630"/>
+        <stop offset="0.6" stop-color="#1d3a63"/>
+        <stop offset="1" stop-color="#31557f"/>
+      </linearGradient>
+      <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3a6b96"/>
+        <stop offset="0.25" stop-color="#27527c"/>
+        <stop offset="1" stop-color="#0e2a46"/>
+      </linearGradient>
+      <linearGradient id="trunkGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#3a2a1a"/>
+        <stop offset="0.5" stop-color="#6b4f33"/>
+        <stop offset="1" stop-color="#3a2a1a"/>
+      </linearGradient>
+
+      <!-- 月亮与倒影 -->
+      <radialGradient id="moonBody" cx="0.4" cy="0.4" r="0.75">
+        <stop offset="0" stop-color="#fffdf2"/>
+        <stop offset="0.55" stop-color="#ffedb0"/>
+        <stop offset="1" stop-color="#f7cf6e"/>
+      </radialGradient>
+      <radialGradient id="moonGlow">
+        <stop offset="0" stop-color="#fff2c4" stop-opacity="0.5"/>
+        <stop offset="0.5" stop-color="#fff2c4" stop-opacity="0.18"/>
+        <stop offset="1" stop-color="#fff2c4" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="reflGlow">
+        <stop offset="0" stop-color="#fff7d8" stop-opacity="0.55"/>
+        <stop offset="0.6" stop-color="#fff7d8" stop-opacity="0.2"/>
+        <stop offset="1" stop-color="#fff7d8" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="reflCore">
+        <stop offset="0" stop-color="#fffdf2"/>
+        <stop offset="0.6" stop-color="#ffe9a8" stop-opacity="0.85"/>
+        <stop offset="1" stop-color="#ffd97e" stop-opacity="0.05"/>
+      </radialGradient>
+
+      <!-- 流星尾迹 -->
+      <linearGradient id="streakGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="70" y2="28">
+        <stop offset="0" stop-color="#ffffff"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+
+      <!-- 暗角 -->
+      <radialGradient id="vig" cx="0.5" cy="0.42" r="0.8">
+        <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+        <stop offset="0.65" stop-color="#000000" stop-opacity="0"/>
+        <stop offset="1" stop-color="#050a1a" stop-opacity="0.45"/>
+      </radialGradient>
+
+      <!-- 水面裁剪区域 -->
+      <clipPath id="waterClip"><rect x="0" y="470" width="900" height="150"/></clipPath>
+
+      <!-- 云朵 -->
+      <g id="cloud" fill="#2c3f58">
+        <ellipse cx="0" cy="0" rx="55" ry="16"/>
+        <ellipse cx="40" cy="6" rx="45" ry="14"/>
+        <ellipse cx="-42" cy="7" rx="40" ry="13"/>
+        <ellipse cx="5" cy="-10" rx="38" ry="13"/>
+      </g>
+
+      <!-- 落叶 -->
+      <g id="leaf">
+        <ellipse cx="0" cy="0" rx="7" ry="2.8" fill="#4a8a3f"/>
+        <ellipse cx="0" cy="0" rx="4" ry="1.6" fill="#5da24e"/>
+      </g>
+
+      <!-- 猴子身体（局部坐标：抓握点为原点，头朝下） -->
+      <g id="monkey-core">
+        <!-- 抓握的脚 -->
+        <ellipse cx="-5" cy="0" rx="5.5" ry="4" fill="#7a4d22"/>
+        <ellipse cx="5" cy="0" rx="5.5" ry="4" fill="#966029"/>
+        <!-- 腿 -->
+        <path d="M -5 1 C -9 16 -7 28 -2 38" fill="none" stroke="#7a4d22" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 5 1 C 9 16 7 28 2 38" fill="none" stroke="#966029" stroke-width="9" stroke-linecap="round"/>
+        <!-- 尾巴 -->
+        <path d="M -12 42 C -30 34 -36 18 -27 6 C -22 -1 -15 1 -16 8" fill="none" stroke="#7a4d22" stroke-width="6" stroke-linecap="round"/>
+        <!-- 身体与肚皮 -->
+        <ellipse cx="0" cy="58" rx="16" ry="21" fill="#966029"/>
+        <ellipse cx="0" cy="62" rx="10" ry="14" fill="#d9a86c"/>
+        <!-- 耳朵 -->
+        <circle cx="-14" cy="86" r="5.5" fill="#966029"/>
+        <circle cx="-13.5" cy="86" r="3" fill="#e8c08a"/>
+        <circle cx="14" cy="86" r="5.5" fill="#966029"/>
+        <circle cx="13.5" cy="86" r="3" fill="#e8c08a"/>
+        <!-- 头与脸 -->
+        <circle cx="0" cy="92" r="14" fill="#966029"/>
+        <ellipse cx="0" cy="97" rx="8.5" ry="7" fill="#e8c08a"/>
+        <!-- 眼睛（同步眨眼） -->
+        <ellipse cx="-4.5" cy="88" rx="2.3" ry="2.3" fill="#2a1a10">
+          <animate attributeName="ry" values="2.3;2.3;0.3;2.3" keyTimes="0;0.9;0.94;1" dur="4.6s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="4.5" cy="88" rx="2.3" ry="2.3" fill="#2a1a10">
+          <animate attributeName="ry" values="2.3;2.3;0.3;2.3" keyTimes="0;0.9;0.94;1" dur="4.6s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- 腮红 / 鼻孔 / 嘴 -->
+        <circle cx="-8.5" cy="95" r="2" fill="#d98a6a" opacity="0.55"/>
+        <circle cx="8.5" cy="95" r="2" fill="#d98a6a" opacity="0.55"/>
+        <circle cx="-1.5" cy="95.5" r="0.8" fill="#6f4519"/>
+        <circle cx="1.5" cy="95.5" r="0.8" fill="#6f4519"/>
+        <path d="M -3 101 Q 0 103.5 3 101" fill="none" stroke="#6f4519" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+      <!-- 悬垂的左臂 / 右臂 -->
+      <g id="armL">
+        <path d="M -11 72 C -14 86 -10 96 -5 102" fill="none" stroke="#7a4d22" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="-5" cy="103" rx="4.5" ry="3.5" fill="#7a4d22"/>
+      </g>
+      <g id="armR">
+        <path d="M 11 72 C 14 86 10 96 5 102" fill="none" stroke="#966029" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="5" cy="103" rx="4.5" ry="3.5" fill="#966029"/>
+      </g>
+    </defs>
+
+    <!-- ===================== 天空 ===================== -->
+    <rect width="900" height="470" fill="url(#sky)"/>
+
+    <!-- 星星（三组交替闪烁） -->
+    <g fill="#dfeaff">
+      <g>
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="3.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <circle cx="55" cy="55" r="1.6"/><circle cx="170" cy="40" r="1.8"/><circle cx="300" cy="60" r="1.4"/>
+        <circle cx="390" cy="90" r="1.7"/><circle cx="520" cy="120" r="1.5"/><circle cx="640" cy="140" r="1.6"/>
+      </g>
+      <g>
+        <animate attributeName="opacity" values="1;0.3;1" dur="4.1s" begin="-1.3s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <circle cx="110" cy="95" r="1.2"/><circle cx="340" cy="140" r="1.1"/><circle cx="455" cy="55" r="1.3"/>
+        <circle cx="585" cy="70" r="1.2"/><circle cx="720" cy="90" r="1.3"/>
+      </g>
+      <g>
+        <animate attributeName="opacity" values="0.45;1;0.45" dur="2.6s" begin="-0.7s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <circle cx="80" cy="210" r="1.3"/><circle cx="130" cy="160" r="1.1"/><circle cx="430" cy="180" r="1.4"/>
+        <circle cx="540" cy="200" r="1.2"/><circle cx="770" cy="45" r="1.5"/><circle cx="60" cy="140" r="1.0"/>
+      </g>
+    </g>
+
+    <!-- 流星（偶尔划过） -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.72;0.735;0.775;1" dur="14s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="930 45;930 45;560 190;560 190" keyTimes="0;0.72;0.775;1" dur="14s" repeatCount="indefinite"/>
+      <line x1="0" y1="0" x2="70" y2="28" stroke="url(#streakGrad)" stroke-width="2.5" stroke-linecap="round"/>
+      <circle r="2.2" fill="#ffffff"/>
+    </g>
+
+    <!-- 月亮 -->
+    <g>
+      <circle cx="200" cy="128" r="108" fill="url(#moonGlow)">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="7s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      </circle>
+      <circle cx="200" cy="128" r="80" fill="url(#moonGlow)"/>
+      <circle cx="200" cy="128" r="52" fill="url(#moonBody)"/>
+      <g fill="#f2d98f" opacity="0.65">
+        <circle cx="183" cy="110" r="7"/>
+        <circle cx="216" cy="138" r="6"/>
+        <circle cx="197" cy="149" r="4.5"/>
+        <circle cx="172" cy="136" r="3.5"/>
+      </g>
+    </g>
+
+    <!-- 夜云（缓慢漂过，一朵会掠过月亮） -->
+    <g transform="translate(1050,95)" opacity="0.55">
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0;-1300 0" dur="75s" begin="-20s" repeatCount="indefinite"/>
+        <use href="#cloud"/>
+      </g>
+    </g>
+    <g transform="translate(1150,120)" opacity="0.4">
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0;-1300 0" dur="90s" begin="-35s" repeatCount="indefinite"/>
+        <use href="#cloud"/>
+      </g>
+    </g>
+    <g transform="translate(940,50)" opacity="0.5">
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0;-1400 0" dur="60s" begin="-12s" repeatCount="indefinite"/>
+        <g transform="scale(0.7)"><use href="#cloud"/></g>
+      </g>
+    </g>
+
+    <!-- 远山剪影 -->
+    <path d="M 0 470 L 0 452 Q 120 436 240 450 T 480 448 T 720 452 L 900 452 L 900 470 Z" fill="#1b3252" opacity="0.9"/>
+    <path d="M 0 470 L 0 460 Q 150 448 300 458 T 600 456 T 900 460 L 900 470 Z" fill="#142843"/>
+
+    <!-- ===================== 水面 ===================== -->
+    <rect x="0" y="470" width="900" height="150" fill="url(#water)"/>
+    <line x1="0" y1="470.5" x2="900" y2="470.5" stroke="#b9d6f5" stroke-opacity="0.3" stroke-width="1.5"/>
+
+    <!-- 水中效果（倒影 / 涟漪 / 波纹，全部裁剪在水面内） -->
+    <g clip-path="url(#waterClip)">
+      <!-- 树影 -->
+      <ellipse cx="858" cy="512" rx="55" ry="16" fill="#0a1626" opacity="0.45"/>
+      <ellipse cx="830" cy="492" rx="75" ry="9" fill="#0a1626" opacity="0.35"/>
+
+      <!-- 水中月倒影（被触碰时压扁碎裂，再慢慢复原） -->
+      <g transform="translate(645,505)">
+        <g>
+          <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.45;1 0.6;1 1;1 1" keyTimes="0;0.36;0.42;0.50;0.60;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;1;0.3;0.55;1;1" keyTimes="0;0.36;0.42;0.52;0.62;1" dur="10s" repeatCount="indefinite"/>
+          <ellipse cx="0" cy="0" rx="85" ry="24" fill="url(#reflGlow)"/>
+          <ellipse cx="0" cy="0" rx="52" ry="13" fill="url(#reflCore)"/>
+          <ellipse cx="0" cy="0" rx="30" ry="7" fill="#fffef2" opacity="0.9"/>
+          <path d="M -38 -3 L 38 -3" stroke="#ffffff" stroke-width="1.5" opacity="0.35" fill="none">
+            <animateTransform attributeName="transform" type="translate" values="-5 0;5 0;-5 0" dur="3.4s" repeatCount="indefinite"/>
+          </path>
+          <path d="M -28 4 L 28 4" stroke="#ffffff" stroke-width="1.2" opacity="0.28" fill="none">
+            <animateTransform attributeName="transform" type="translate" values="4 0;-4 0;4 0" dur="4.2s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      </g>
+
+      <!-- 月影碎片（触水瞬间散开） -->
+      <g fill="#ffe9a8">
+        <ellipse cx="607" cy="501" rx="14" ry="4" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.37;0.39;0.55;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="607;607;596;596" keyTimes="0;0.37;0.55;1" dur="10s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="625" cy="511" rx="11" ry="3.5" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.85;0;0" keyTimes="0;0.38;0.40;0.56;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="625;625;617;617" keyTimes="0;0.38;0.56;1" dur="10s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="640" cy="493" rx="13" ry="4" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.37;0.39;0.55;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="640;640;633;633" keyTimes="0;0.37;0.55;1" dur="10s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="668" cy="508" rx="11" ry="3.5" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.85;0;0" keyTimes="0;0.38;0.40;0.56;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="668;668;677;677" keyTimes="0;0.38;0.56;1" dur="10s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="683" cy="498" rx="14" ry="4" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.9;0;0" keyTimes="0;0.37;0.39;0.55;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="683;683;693;693" keyTimes="0;0.37;0.55;1" dur="10s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="652" cy="515" rx="9" ry="3" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.8;0;0" keyTimes="0;0.38;0.40;0.56;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="652;652;656;656" keyTimes="0;0.38;0.56;1" dur="10s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>
+
+      <!-- 涟漪（三圈依次扩散） -->
+      <g fill="none" stroke="#cfe8ff">
+        <circle cx="650" cy="500" r="6" stroke-width="3" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.75;0;0" keyTimes="0;0.21;0.23;0.48;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="6;6;70;70" keyTimes="0;0.21;0.48;1" dur="10s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="650" cy="500" r="6" stroke-width="2.5" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.55;0;0" keyTimes="0;0.25;0.27;0.54;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="6;6;92;92" keyTimes="0;0.25;0.54;1" dur="10s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="650" cy="500" r="6" stroke-width="2" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.4;0;0" keyTimes="0;0.29;0.31;0.60;1" dur="10s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="6;6;118;118" keyTimes="0;0.29;0.60;1" dur="10s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+
+      <!-- 波光线条（循环漂移） -->
+      <g fill="none" stroke="#b9d6f5" stroke-width="2">
+        <path d="M -180 487 q 45 -6 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0" stroke-opacity="0.20">
+          <animateTransform attributeName="transform" type="translate" values="0 0;-180 0" dur="11s" repeatCount="indefinite"/>
+        </path>
+        <path d="M -180 506 q 45 -6 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0" stroke-opacity="0.15">
+          <animateTransform attributeName="transform" type="translate" values="0 0;-180 0" dur="13s" begin="-4s" repeatCount="indefinite"/>
+        </path>
+        <path d="M -180 530 q 45 -7 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0" stroke-opacity="0.11">
+          <animateTransform attributeName="transform" type="translate" values="0 0;-180 0" dur="16s" begin="-8s" repeatCount="indefinite"/>
+        </path>
+        <path d="M -180 560 q 45 -8 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0" stroke-opacity="0.08">
+          <animateTransform attributeName="transform" type="translate" values="0 0;-180 0" dur="19s" begin="-3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M -180 592 q 45 -8 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0 t 90 0" stroke-opacity="0.06">
+          <animateTransform attributeName="transform" type="translate" values="0 0;-180 0" dur="22s" begin="-10s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </g>
+
+    <!-- 水花（可跃出水面，不裁剪） -->
+    <g fill="#dceeff">
+      <circle cx="655" cy="492" r="3" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;0.9;0;0" keyTimes="0;0.20;0.22;0.32;0.42;1" dur="10s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="655;655;664;672;676;676" keyTimes="0;0.20;0.24;0.30;0.40;1" dur="10s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="492;492;472;480;496;496" keyTimes="0;0.20;0.24;0.30;0.40;1" dur="10s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="652" cy="492" r="2.6" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.9;0.8;0;0" keyTimes="0;0.21;0.23;0.33;0.43;1" dur="10s" repeatCount="indefinite"/>
+        <animate attributeName="cx" values="652;652;641;633;629;629" keyTimes="0;0.21;0.25;0.31;0.41;1" dur="10s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="492;492;470;479;495;495" keyTimes="0;0.21;0.25;0.31;0.41;1" dur="10s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="657" cy="490" r="2" opacity="0">
+        <animate attributeName="opacity" values="0;0;0.85;0.75;0;0" keyTimes="0;0.20;0.22;0.32;0.41;1" dur="10s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="490;490;467;477;493;493" keyTimes="0;0.20;0.24;0.30;0.40;1" dur="10s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- ===================== 岸与树 ===================== -->
+    <!-- 河岸 -->
+    <path d="M 690 474 C 745 456 810 452 862 456 C 884 458 894 456 900 454 L 900 474 Z" fill="#1c3624"/>
+    <g stroke="#3f7a4a" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <path d="M 715 462 q -3 -10 -8 -13"/><path d="M 721 462 q 3 -10 8 -12"/>
+      <path d="M 762 457 q -3 -10 -8 -12"/><path d="M 768 457 q 3 -9 8 -11"/>
+      <path d="M 822 456 q -3 -10 -8 -12"/><path d="M 828 456 q 3 -9 8 -11"/>
+      <path d="M 878 459 q -3 -9 -8 -11"/>
+    </g>
+
+    <!-- 树干与树枝 -->
+    <path d="M 836 474 C 844 400 838 300 828 226 C 825 196 828 168 836 146 L 866 146 C 873 168 876 198 872 228 C 864 302 866 396 878 474 Z" fill="url(#trunkGrad)"/>
+    <path d="M 846 154 C 818 134 794 118 768 104 L 762 110 C 788 124 810 140 832 160 Z" fill="url(#trunkGrad)"/>
+    <path d="M 838 160 C 770 152 700 148 618 148 L 617 158 C 700 158 770 162 836 176 Z" fill="url(#trunkGrad)"/>
+    <path d="M 830 166 C 760 158 690 154 630 153" stroke="#3a2a1a" stroke-width="2" fill="none" opacity="0.5"/>
+    <path d="M 842 430 C 846 380 842 320 838 270" stroke="#3a2a1a" stroke-width="2.5" fill="none" opacity="0.45"/>
+
+    <!-- 树冠（轻微摇曳） -->
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="-0.8 810 160;0.8 810 160;-0.8 810 160" dur="8.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <circle cx="845" cy="95" r="44" fill="#2c5a33"/>
+      <circle cx="785" cy="85" r="36" fill="#356b3d"/>
+      <circle cx="728" cy="108" r="30" fill="#2c5a33"/>
+      <circle cx="885" cy="120" r="38" fill="#356b3d"/>
+      <circle cx="695" cy="135" r="22" fill="#27502e"/>
+      <circle cx="862" cy="135" r="30" fill="#27502e"/>
+      <circle cx="750" cy="130" r="24" fill="#356b3d"/>
+      <circle cx="815" cy="120" r="34" fill="#2c5a33"/>
+      <circle cx="820" cy="80" r="18" fill="#4a8a52" opacity="0.8"/>
+      <circle cx="760" cy="105" r="14" fill="#4a8a52" opacity="0.8"/>
+      <circle cx="880" cy="105" r="15" fill="#4a8a52" opacity="0.8"/>
+    </g>
+
+    <!-- 落叶 -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1;0" keyTimes="0;0.04;0.12;0.75;0.93;1" dur="9s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="770 195;782 250;766 310;780 370;768 430;764 464" keyTimes="0;0.2;0.4;0.6;0.8;1" dur="9s" repeatCount="indefinite"/>
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0;140;280;420" keyTimes="0;0.33;0.66;1" dur="9s" repeatCount="indefinite"/>
+        <use href="#leaf"/>
+      </g>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1;0" keyTimes="0;0.04;0.12;0.75;0.93;1" dur="12s" begin="-5s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="856 220;866 280;852 340;864 400;852 455;848 466" keyTimes="0;0.2;0.4;0.6;0.8;1" dur="12s" begin="-5s" repeatCount="indefinite"/>
+      <g transform="scale(0.8)">
+        <animateTransform attributeName="transform" type="rotate" values="0;140;280;420" keyTimes="0;0.33;0.66;1" dur="12s" begin="-5s" repeatCount="indefinite" additive="sum"/>
+        <use href="#leaf"/>
+      </g>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0;1;1;1;0" keyTimes="0;0.04;0.12;0.75;0.93;1" dur="10.5s" begin="-8s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="738 168;750 230;736 300;748 370;738 440;734 462" keyTimes="0;0.2;0.4;0.6;0.8;1" dur="10.5s" begin="-8s" repeatCount="indefinite"/>
+      <g transform="scale(0.7)">
+        <animateTransform attributeName="transform" type="rotate" values="0;140;280;420" keyTimes="0;0.33;0.66;1" dur="10.5s" begin="-8s" repeatCount="indefinite" additive="sum"/>
+        <use href="#leaf"/>
+      </g>
+    </g>
+
+    <!-- ===================== 猴子链（倒挂） ===================== -->
+    <g transform="translate(648,155)">
+      <g>
+        <!-- 整条链的摆动 + 探手时整体下沉 -->
+        <animateTransform attributeName="transform" type="rotate" values="-1.2 0 0;1.2 0 0;-1.2 0 0" dur="5.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <animateTransform attributeName="transform" type="translate" additive="sum" values="0 0;0 0;0 5;0 5;0 0;0 0" keyTimes="0;0.22;0.40;0.44;0.62;1" dur="10s" repeatCount="indefinite"/>
+
+        <!-- 猴子一（抓树枝） -->
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="-1.5 0 0;1.5 0 0;-1.5 0 0" dur="4.7s" begin="-1.3s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+          <use href="#monkey-core"/><use href="#armL"/><use href="#armR"/>
+
+          <!-- 猴子二（抓猴一脚） -->
+          <g transform="translate(0,103)">
+            <g>
+              <animateTransform attributeName="transform" type="rotate" values="1.5 0 0;-1.5 0 0;1.5 0 0" dur="5.6s" begin="-2.1s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+              <use href="#monkey-core"/><use href="#armL"/><use href="#armR"/>
+
+              <!-- 猴子三（最下方，负责捞月） -->
+              <g transform="translate(0,103)">
+                <g>
+                  <animateTransform attributeName="transform" type="rotate" values="-2 0 0;2 0 0;-2 0 0" dur="4.9s" begin="-0.9s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+                  <use href="#monkey-core"/><use href="#armL"/>
+
+                  <!-- 捞月的手臂：伸出 → 触水搅动 → 收回（10 秒剧情循环） -->
+                  <path fill="none" stroke="#966029" stroke-width="7.5" stroke-linecap="round" d="M 11 72 Q 15 90 6 101">
+                    <animate attributeName="d" dur="10s" repeatCount="indefinite" keyTimes="0;0.18;0.30;0.38;0.44;0.62;1"
+                      values="M 11 72 Q 15 90 6 101;
+                              M 11 72 Q 15 90 6 101;
+                              M 11 72 Q 20 130 14 150;
+                              M 11 72 Q 16 150 11 172;
+                              M 11 72 Q 22 158 18 182;
+                              M 11 72 Q 16 110 9 130;
+                              M 11 72 Q 15 90 6 101"/>
+                  </path>
+                  <ellipse cx="6" cy="101" rx="5.5" ry="4.5" fill="#966029">
+                    <animate attributeName="cx" dur="10s" repeatCount="indefinite" keyTimes="0;0.18;0.30;0.38;0.44;0.62;1" values="6;6;14;11;18;9;6"/>
+                    <animate attributeName="cy" dur="10s" repeatCount="indefinite" keyTimes="0;0.18;0.30;0.38;0.44;0.62;1" values="101;101;150;172;182;130;101"/>
+                  </ellipse>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- 萤火虫 -->
+    <g transform="translate(690,330)">
+      <g>
+        <animate attributeName="opacity" values="0.15;1;0.15" dur="2.1s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;9 -7;0 0" dur="6.5s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <circle r="5" fill="#ffe27a" opacity="0.25"/><circle r="2.2" fill="#ffe27a"/>
+      </g>
+    </g>
+    <g transform="translate(600,392)">
+      <g>
+        <animate attributeName="opacity" values="1;0.15;1" dur="2.7s" begin="-0.8s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;-8 -6;0 0" dur="7.8s" begin="-3s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <circle r="5" fill="#ffe27a" opacity="0.25"/><circle r="2.2" fill="#ffe27a"/>
+      </g>
+    </g>
+    <g transform="translate(748,298)">
+      <g>
+        <animate attributeName="opacity" values="0.15;1;0.15" dur="1.8s" begin="-0.4s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="0 0;7 6;0 0" dur="5.6s" begin="-2s" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+        <circle r="4" fill="#ffe27a" opacity="0.25"/><circle r="1.8" fill="#ffe27a"/>
+      </g>
+    </g>
+
+    <!-- 暗角 -->
+    <rect width="900" height="620" fill="url(#vig)"/>
+  </svg>
+</div>
+</body>
+</html>
