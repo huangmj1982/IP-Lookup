@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>老虎跳上山崖 · SVG 动画</title>
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, #1d2b3a, #2e4a5f);
+    font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .stage { width: min(92vw, 900px); }
+  h1 {
+    color: #eaf4fb;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 6px;
+    margin: 0 0 18px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>猛 虎 跃 崖</h1>
+  <svg viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="一只老虎跳跃上山崖的动画">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#a9d7ee"/>
+        <stop offset="1" stop-color="#eef8fd"/>
+      </linearGradient>
+      <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#b59372"/>
+        <stop offset="1" stop-color="#8f7053"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ===== 背景 ===== -->
+    <rect width="900" height="620" fill="url(#sky)"/>
+
+    <!-- 太阳 -->
+    <g transform="translate(105,90)">
+      <g stroke="#ffd54a" stroke-width="6" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="20s" repeatCount="indefinite"/>
+        <line x1="0" y1="-52" x2="0" y2="-66"/>
+        <line x1="52" y1="0" x2="66" y2="0"/>
+        <line x1="0" y1="52" x2="0" y2="66"/>
+        <line x1="-52" y1="0" x2="-66" y2="0"/>
+        <line x1="37" y1="-37" x2="47" y2="-47"/>
+        <line x1="37" y1="37" x2="47" y2="47"/>
+        <line x1="-37" y1="37" x2="-47" y2="47"/>
+        <line x1="-37" y1="-37" x2="-47" y2="-47"/>
+      </g>
+      <circle r="38" fill="#ffd54a"/>
+      <circle r="30" fill="#ffe27a"/>
+    </g>
+
+    <!-- 云 -->
+    <g fill="#ffffff" opacity="0.95">
+      <g transform="translate(1000,150)">
+        <animateTransform attributeName="transform" type="translate" additive="sum" from="0 0" to="-1300 0" dur="26s" repeatCount="indefinite"/>
+        <ellipse cx="0" cy="0" rx="52" ry="22"/>
+        <ellipse cx="36" cy="8" rx="38" ry="17"/>
+        <ellipse cx="-36" cy="8" rx="36" ry="16"/>
+      </g>
+      <g transform="translate(1100,70)">
+        <animateTransform attributeName="transform" type="translate" additive="sum" from="0 0" to="-1400 0" dur="34s" repeatCount="indefinite"/>
+        <ellipse cx="0" cy="0" rx="60" ry="25"/>
+        <ellipse cx="42" cy="9" rx="44" ry="19"/>
+      </g>
+      <g transform="translate(1250,210)">
+        <animateTransform attributeName="transform" type="translate" additive="sum" from="0 0" to="-1500 0" dur="30s" repeatCount="indefinite"/>
+        <g transform="scale(0.7)">
+          <ellipse cx="0" cy="0" rx="52" ry="22"/>
+          <ellipse cx="36" cy="8" rx="38" ry="17"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- 飞鸟 -->
+    <g stroke="#4a5a68" stroke-width="2.5" fill="none" stroke-linecap="round">
+      <g transform="translate(980,120)">
+        <animateTransform attributeName="transform" type="translate" additive="sum" from="0 0" to="-1250 0" dur="32s" repeatCount="indefinite"/>
+        <path d="M 0,0 Q 7,-9 14,0 Q 21,-9 28,0">
+          <animate attributeName="d" dur="0.6s" repeatCount="indefinite"
+            values="M 0,0 Q 7,-9 14,0 Q 21,-9 28,0; M 0,0 Q 7,3 14,0 Q 21,3 28,0; M 0,0 Q 7,-9 14,0 Q 21,-9 28,0"/>
+        </path>
+      </g>
+      <g transform="translate(980,78)">
+        <animateTransform attributeName="transform" type="translate" additive="sum" from="0 0" to="-1250 0" dur="40s" begin="-14s" repeatCount="indefinite"/>
+        <path d="M 0,0 Q 6,-8 12,0 Q 18,-8 24,0">
+          <animate attributeName="d" dur="0.5s" repeatCount="indefinite"
+            values="M 0,0 Q 6,-8 12,0 Q 18,-8 24,0; M 0,0 Q 6,3 12,0 Q 18,3 24,0; M 0,0 Q 6,-8 12,0 Q 18,-8 24,0"/>
+        </path>
+      </g>
+    </g>
+
+    <!-- 远山 -->
+    <path d="M -20,520 L 180,330 L 380,520 Z" fill="#c2d4e4"/>
+    <path d="M 250,520 L 430,300 L 640,520 Z" fill="#b3c9dd"/>
+
+    <!-- 草地与泥土 -->
+    <path d="M 0,514 Q 200,504 450,512 T 900,508 L 900,532 L 0,532 Z" fill="#7ec850"/>
+    <rect x="0" y="528" width="900" height="92" fill="#8a6b4f"/>
+    <g fill="#a08663">
+      <ellipse cx="120" cy="560" rx="11" ry="4"/>
+      <ellipse cx="320" cy="585" rx="13" ry="5"/>
+      <ellipse cx="520" cy="556" rx="9" ry="4"/>
+      <ellipse cx="872" cy="575" rx="12" ry="5"/>
+      <ellipse cx="60" cy="596" rx="10" ry="4"/>
+    </g>
+    <g fill="#f2c94c">
+      <circle cx="150" cy="516" r="3.5"/>
+      <circle cx="420" cy="514" r="3"/>
+      <circle cx="558" cy="518" r="3.5"/>
+    </g>
+
+    <!-- ===== 山崖 ===== -->
+    <path d="M 548,620 L 570,472 L 586,384 L 575,330 L 610,310 L 776,309 L 794,332 L 782,392 L 802,472 L 824,620 Z" fill="url(#rock)"/>
+    <path d="M 575,330 L 610,311 L 622,620 L 548,620 L 570,472 L 586,384 Z" fill="#b3947a"/>
+    <g stroke="#7d5f45" stroke-width="3" fill="none" opacity="0.7" stroke-linecap="round">
+      <path d="M 690,380 q 6 45 -6 85"/>
+      <path d="M 630,455 q 22 28 12 66"/>
+      <path d="M 745,420 q -4 30 6 60"/>
+    </g>
+    <!-- 崖顶草地 -->
+    <path d="M 594,316 Q 640,297 700,309 Q 752,319 786,312 L 788,330 Q 744,337 696,327 Q 642,317 596,333 Z" fill="#6db33f"/>
+    <g stroke="#4e9b34" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M 612,316 q -2 -12 -9 -16"/>
+      <path d="M 618,317 q 2 -12 9 -15"/>
+      <path d="M 700,309 q -2 -12 -9 -15"/>
+      <path d="M 706,310 q 2 -11 8 -14"/>
+      <path d="M 768,318 q -2 -11 -8 -14"/>
+    </g>
+    <!-- 崖顶灌木 -->
+    <g fill="#4e9b34">
+      <circle cx="752" cy="304" r="12"/>
+      <circle cx="766" cy="308" r="9"/>
+      <circle cx="740" cy="309" r="8"/>
+    </g>
+    <ellipse cx="852" cy="602" rx="18" ry="8" fill="#9b8266"/>
+
+    <!-- ===== 影子 ===== -->
+    <ellipse cx="170" cy="524" fill="#1e2a1a">
+      <animate attributeName="rx" dur="7s" repeatCount="indefinite"
+        values="58;58;20;10;10;58;58" keyTimes="0;0.193;0.271;0.35;0.736;0.814;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+        values="0.30;0.30;0.12;0.03;0.03;0.30;0.30" keyTimes="0;0.193;0.271;0.35;0.736;0.814;1"/>
+    </ellipse>
+    <ellipse cx="655" cy="316" fill="#241a12">
+      <animate attributeName="rx" dur="7s" repeatCount="indefinite"
+        values="12;12;50;50;12;12" keyTimes="0;0.271;0.35;0.657;0.736;1"/>
+      <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+        values="0.03;0.03;0.28;0.28;0.03;0.03" keyTimes="0;0.271;0.35;0.657;0.736;1"/>
+    </ellipse>
+
+    <!-- ===== 尘土（地面：起跳 + 落地） ===== -->
+    <g transform="translate(170,526)" fill="#d8c9a8">
+      <circle cx="0" cy="0" r="5" opacity="0">
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+          values="0;0;0.65;0;0;0.6;0;0" keyTimes="0;0.19;0.21;0.28;0.80;0.815;0.87;1"/>
+        <animate attributeName="r" dur="7s" repeatCount="indefinite"
+          values="5;5;15;5;15;5" keyTimes="0;0.19;0.28;0.80;0.87;1"/>
+      </circle>
+      <circle cx="-16" cy="4" r="4" opacity="0">
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+          values="0;0;0.55;0;0;0.5;0;0" keyTimes="0;0.20;0.22;0.29;0.80;0.82;0.875;1"/>
+        <animate attributeName="r" dur="7s" repeatCount="indefinite"
+          values="4;4;12;4;12;4" keyTimes="0;0.20;0.29;0.80;0.875;1"/>
+      </circle>
+      <circle cx="14" cy="6" r="4.5" opacity="0">
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+          values="0;0;0.5;0;0;0.45;0;0" keyTimes="0;0.195;0.215;0.285;0.80;0.818;0.872;1"/>
+        <animate attributeName="r" dur="7s" repeatCount="indefinite"
+          values="4.5;4.5;13;4.5;13;4.5" keyTimes="0;0.195;0.285;0.80;0.872;1"/>
+      </circle>
+    </g>
+
+    <!-- ===== 尘土（崖顶落地） ===== -->
+    <g transform="translate(648,318)" fill="#d8c9a8">
+      <circle cx="0" cy="0" r="5" opacity="0">
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+          values="0;0;0.6;0;0" keyTimes="0;0.345;0.365;0.43;1"/>
+        <animate attributeName="r" dur="7s" repeatCount="indefinite"
+          values="5;5;14;5" keyTimes="0;0.345;0.43;1"/>
+      </circle>
+      <circle cx="-14" cy="5" r="4" opacity="0">
+        <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+          values="0;0;0.5;0;0" keyTimes="0;0.35;0.37;0.425;1"/>
+        <animate attributeName="r" dur="7s" repeatCount="indefinite"
+          values="4;4;12;4" keyTimes="0;0.35;0.425;1"/>
+      </circle>
+    </g>
+
+    <!-- ===== 老虎（整体动作时间轴，7 秒一个循环） ===== -->
+    <g>
+      <!-- 位移：地面待机 → 下蹲 → 跃向山崖 → 崖顶停留 → 转身下蹲 → 跳回地面 -->
+      <animateTransform attributeName="transform" type="translate" dur="7s" repeatCount="indefinite"
+        calcMode="spline"
+        values="170 520; 170 520; 170 532; 420 180; 655 312; 655 312; 655 322; 430 205; 170 520; 170 520"
+        keyTimes="0;0.143;0.193;0.271;0.35;0.614;0.657;0.736;0.814;1"
+        keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.3 0 0.55 1; 0.45 0 0.7 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.3 0 0.55 1; 0.45 0 0.7 1; 0.42 0 0.58 1"/>
+      <g>
+        <!-- 转向：崖顶跳回前转身（镜像） -->
+        <animateTransform attributeName="transform" type="scale" dur="7s" repeatCount="indefinite"
+          values="1 1; 1 1; -1 1; -1 1; -1 1; 1 1; 1 1"
+          keyTimes="0;0.614;0.636;0.814;0.9;0.921;1"/>
+        <g>
+          <!-- 身体俯仰：起跳仰头、落地前低头 -->
+          <animateTransform attributeName="transform" type="rotate" dur="7s" repeatCount="indefinite"
+            values="0 0 -60; 0 0 -60; 5 0 -60; -26 0 -60; -20 0 -60; 14 0 -60; 10 0 -60; 0 0 -60; 0 0 -60; -4 0 -60; -26 0 -60; -20 0 -60; 14 0 -60; 10 0 -60; 0 0 -60; 0 0 -60"
+            keyTimes="0;0.143;0.193;0.24;0.271;0.315;0.35;0.414;0.614;0.657;0.7;0.736;0.78;0.814;0.878;1"/>
+          <g>
+            <!-- 蹲伏压缩 / 腾空拉伸（以脚底为原点） -->
+            <animateTransform attributeName="transform" type="scale" dur="7s" repeatCount="indefinite"
+              values="1 1; 1.015 0.98; 1 1; 1.14 0.76; 0.9 1.14; 0.95 1.08; 1.18 0.78; 1 1; 1 1; 1.14 0.76; 0.9 1.14; 0.95 1.08; 1.18 0.78; 1 1; 1 1"
+              keyTimes="0;0.071;0.143;0.193;0.24;0.271;0.35;0.414;0.614;0.657;0.7;0.736;0.814;0.878;1"/>
+
+            <!-- 速度线（仅腾空时可见） -->
+            <g stroke="#7fa2b8" stroke-linecap="round">
+              <line x1="-152" y1="-140" x2="-108" y2="-140" stroke-width="6"/>
+              <line x1="-158" y1="-100" x2="-112" y2="-100" stroke-width="5"/>
+              <line x1="-150" y1="-62" x2="-108" y2="-62" stroke-width="4"/>
+              <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+                values="0;0;0.75;0.75;0;0;0.75;0.75;0;0"
+                keyTimes="0;0.205;0.235;0.33;0.35;0.665;0.695;0.79;0.81;1"/>
+            </g>
+
+            <!-- 尾巴（摆动） -->
+            <g>
+              <animateTransform attributeName="transform" type="rotate" dur="1.8s" repeatCount="indefinite"
+                values="-4 -78 -100; 7 -78 -100; -4 -78 -100"/>
+              <path d="M -78,-100 C -106,-106 -120,-136 -112,-162 C -106,-182 -88,-188 -74,-180"
+                    fill="none" stroke="#f29b33" stroke-width="13" stroke-linecap="round"/>
+              <path d="M -78,-100 C -106,-106 -120,-136 -112,-162 C -106,-182 -88,-188 -74,-180"
+                    fill="none" stroke="#2e2a28" stroke-width="13" stroke-linecap="butt"
+                    stroke-dasharray="9 22" stroke-dashoffset="18"/>
+              <circle cx="-74" cy="-180" r="7" fill="#2e2a28"/>
+            </g>
+
+            <!-- 远侧腿（深色，蹬跳时向后方伸展） -->
+            <path fill="none" stroke="#d97b1c" stroke-width="15" stroke-linecap="round" d="M -30,-70 C -33,-47 -31,-24 -29,-3">
+              <animate attributeName="d" dur="7s" repeatCount="indefinite"
+                keyTimes="0;0.193;0.23;0.32;0.4;0.657;0.69;0.78;0.87;1"
+                values="M -30,-70 C -33,-47 -31,-24 -29,-3;
+                        M -30,-70 C -33,-47 -31,-24 -29,-3;
+                        M -36,-84 C -60,-72 -80,-52 -94,-34;
+                        M -36,-84 C -60,-72 -80,-52 -94,-34;
+                        M -30,-70 C -33,-47 -31,-24 -29,-3;
+                        M -30,-70 C -33,-47 -31,-24 -29,-3;
+                        M -36,-84 C -60,-72 -80,-52 -94,-34;
+                        M -36,-84 C -60,-72 -80,-52 -94,-34;
+                        M -30,-70 C -33,-47 -31,-24 -29,-3;
+                        M -30,-70 C -33,-47 -31,-24 -29,-3"/>
+            </path>
+            <path fill="none" stroke="#d97b1c" stroke-width="15" stroke-linecap="round" d="M 22,-70 C 25,-47 23,-24 21,-3">
+              <animate attributeName="d" dur="7s" repeatCount="indefinite"
+                keyTimes="0;0.193;0.23;0.32;0.4;0.657;0.69;0.78;0.87;1"
+                values="M 22,-70 C 25,-47 23,-24 21,-3;
+                        M 22,-70 C 25,-47 23,-24 21,-3;
+                        M 26,-90 C 48,-84 68,-79 84,-72;
+                        M 26,-90 C 48,-84 68,-79 84,-72;
+                        M 22,-70 C 25,-47 23,-24 21,-3;
+                        M 22,-70 C 25,-47 23,-24 21,-3;
+                        M 26,-90 C 48,-84 68,-79 84,-72;
+                        M 26,-90 C 48,-84 68,-79 84,-72;
+                        M 22,-70 C 25,-47 23,-24 21,-3;
+                        M 22,-70 C 25,-47 23,-24 21,-3"/>
+            </path>
+
+            <!-- 身体 -->
+            <ellipse cx="-15" cy="-95" rx="76" ry="38" transform="rotate(-8 -15 -95)"
+                     fill="#f29b33" stroke="#c96f14" stroke-width="2.5"/>
+            <ellipse cx="-8" cy="-76" rx="56" ry="16" transform="rotate(-8 -8 -76)" fill="#fdf4e4"/>
+
+            <!-- 身体条纹 -->
+            <g stroke="#2e2a28" stroke-width="6.5" fill="none" stroke-linecap="round">
+              <path d="M -58,-122 q 3 14 -3 26"/>
+              <path d="M -34,-128 q 4 16 -2 30"/>
+              <path d="M -10,-130 q 4 16 -1 31"/>
+              <path d="M 14,-127 q 5 15 1 29"/>
+              <path d="M 36,-120 q 6 13 3 25"/>
+              <path d="M 54,-110 q 6 10 4 18"/>
+              <path d="M -72,-110 q 0 10 -6 15"/>
+            </g>
+
+            <!-- 脖子 -->
+            <path d="M 40,-102 C 52,-112 58,-124 63,-132" fill="none"
+                  stroke="#f29b33" stroke-width="28" stroke-linecap="round"/>
+
+            <!-- 近侧腿（蹬跳时前扑伸展） -->
+            <path fill="none" stroke="#f29b33" stroke-width="17" stroke-linecap="round" d="M -46,-72 C -50,-48 -48,-24 -46,-2">
+              <animate attributeName="d" dur="7s" repeatCount="indefinite"
+                keyTimes="0;0.193;0.23;0.32;0.4;0.657;0.69;0.78;0.87;1"
+                values="M -46,-72 C -50,-48 -48,-24 -46,-2;
+                        M -46,-72 C -50,-48 -48,-24 -46,-2;
+                        M -52,-88 C -78,-72 -98,-48 -112,-24;
+                        M -52,-88 C -78,-72 -98,-48 -112,-24;
+                        M -46,-72 C -50,-48 -48,-24 -46,-2;
+                        M -46,-72 C -50,-48 -48,-24 -46,-2;
+                        M -52,-88 C -78,-72 -98,-48 -112,-24;
+                        M -52,-88 C -78,-72 -98,-48 -112,-24;
+                        M -46,-72 C -50,-48 -48,-24 -46,-2;
+                        M -46,-72 C -50,-48 -48,-24 -46,-2"/>
+            </path>
+            <path fill="none" stroke="#f29b33" stroke-width="17" stroke-linecap="round" d="M 40,-72 C 44,-48 42,-24 40,-2">
+              <animate attributeName="d" dur="7s" repeatCount="indefinite"
+                keyTimes="0;0.193;0.23;0.32;0.4;0.657;0.69;0.78;0.87;1"
+                values="M 40,-72 C 44,-48 42,-24 40,-2;
+                        M 40,-72 C 44,-48 42,-24 40,-2;
+                        M 42,-92 C 68,-84 92,-76 110,-66;
+                        M 42,-92 C 68,-84 92,-76 110,-66;
+                        M 40,-72 C 44,-48 42,-24 40,-2;
+                        M 40,-72 C 44,-48 42,-24 40,-2;
+                        M 42,-92 C 68,-84 92,-76 110,-66;
+                        M 42,-92 C 68,-84 92,-76 110,-66;
+                        M 40,-72 C 44,-48 42,-24 40,-2;
+                        M 40,-72 C 44,-48 42,-24 40,-2"/>
+            </path>
+
+            <!-- 头部 -->
+            <g>
+              <circle cx="58" cy="-164" r="10" fill="#f29b33"/>
+              <circle cx="58" cy="-164" r="4.5" fill="#2e2a28"/>
+              <circle cx="90" cy="-162" r="10" fill="#f29b33"/>
+              <circle cx="90" cy="-162" r="4.5" fill="#2e2a28"/>
+              <circle cx="72" cy="-140" r="27" fill="#f29b33" stroke="#c96f14" stroke-width="2"/>
+              <g stroke="#2e2a28" stroke-width="3" fill="none" stroke-linecap="round">
+                <path d="M 68,-162 q 2 7 -1 11"/>
+                <path d="M 76,-164 q 2 7 0 11"/>
+                <path d="M 84,-161 q 2 7 0 11"/>
+                <path d="M 50,-148 q 6 1 9 4"/>
+                <path d="M 49,-138 q 6 2 10 2"/>
+              </g>
+              <!-- 眉毛与眼睛 -->
+              <g stroke="#2e2a28" stroke-width="2.5" fill="none" stroke-linecap="round">
+                <path d="M 57,-155 q 6 -3 11 -1"/>
+                <path d="M 77,-154 q 6 -2 11 0"/>
+              </g>
+              <circle cx="64" cy="-146" r="4" fill="#2e2a28"/>
+              <circle cx="83" cy="-145" r="4.5" fill="#2e2a28"/>
+              <circle cx="84.5" cy="-147" r="1.5" fill="#ffffff"/>
+              <!-- 口鼻 -->
+              <ellipse cx="88" cy="-126" rx="13" ry="10.5" fill="#fdf4e4"/>
+              <path d="M 93,-134 q 6 -3 9 2 q -2 6 -9 4 z" fill="#c9765c"/>
+              <path d="M 96,-126 q -2 6 -9 7" fill="none" stroke="#2e2a28" stroke-width="2" stroke-linecap="round"/>
+              <g stroke="#2e2a28" stroke-width="1.3" fill="none" stroke-linecap="round">
+                <path d="M 96,-122 q 11 -2 18 -5"/>
+                <path d="M 97,-119 q 11 1 17 -1"/>
+              </g>
+              <!-- 咆哮（崖顶站立时张开嘴） -->
+              <g opacity="0">
+                <animate attributeName="opacity" dur="7s" repeatCount="indefinite"
+                  values="0;0;1;1;0;0" keyTimes="0;0.42;0.435;0.575;0.60;1"/>
+                <path d="M 88,-120 q 10 16 22 10 q -4 12 -16 8 q -8 -4 -6 -18 z"
+                      fill="#7d3030" stroke="#2e2a28" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M 92,-119 l 3 6 l 3 -5 z" fill="#ffffff"/>
+                <path d="M 102,-113 l 3 5 l 3 -6 z" fill="#ffffff"/>
+                <path d="M 116,-150 a 15 15 0 0 1 0 24" fill="none" stroke="#3f5a70" stroke-width="3.5" stroke-linecap="round"/>
+                <path d="M 126,-157 a 23 23 0 0 1 0 38" fill="none" stroke="#3f5a70" stroke-width="3.5" stroke-linecap="round"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- 前景草丛 -->
+    <g stroke="#4e9b34" stroke-width="3" fill="none" stroke-linecap="round">
+      <path d="M 70,524 q -3 -14 -10 -18"/>
+      <path d="M 78,524 q 2 -13 9 -16"/>
+      <path d="M 240,522 q -3 -13 -9 -17"/>
+      <path d="M 330,523 q 2 -12 8 -15"/>
+      <path d="M 470,521 q -3 -13 -9 -16"/>
+      <path d="M 505,522 q 2 -12 8 -15"/>
+      <path d="M 860,522 q -3 -13 -9 -16"/>
+    </g>
+  </svg>
+</div>
+</body>
+</html>
