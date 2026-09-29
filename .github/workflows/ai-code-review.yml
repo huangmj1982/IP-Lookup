@@ -1,31 +1,65 @@
 name: AI Code Review
 on:
   pull_request:
-    types: [opened, synchronize]   # PR 打开或更新时触发
+    types: [opened, synchronize]
 
 permissions:
   contents: read
-  pull-requests: write             # 允许提交 review
+  pull-requests: write        # 允许 gh 提交 review 评论
 
+# 基于官方 TraeCode CLI 2.0 (docs.trae.cn/cli_command-line-parameters, cli_login-token):
+# - 安装源 https://trae.cn/trae-cli/install_v2.sh 为公网地址, 公开 ubuntu-latest 可直接安装
+# - 内置 traecli review 子命令做非交互式代码评审
+# - 登录方式: TRAECLI_PERSONAL_ACCESS_TOKEN 作为环境变量注入(令牌含 trae-lt- 前缀)
 jobs:
   review:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-latest     # 公开 runner, 无需 self-hosted
+    timeout-minutes: 20
+    env:
+      # 必填: IP-Lookup -> Settings -> Secrets -> Actions 新增 TRAECLI_PERSONAL_ACCESS_TOKEN
+      #   值为 TRAE 企业版控制台生成的 CLI 登录令牌(含开头的 trae-lt- 部分)
+      TRAECLI_PERSONAL_ACCESS_TOKEN: ${{ secrets.TRAECLI_PERSONAL_ACCESS_TOKEN }}
+      # 可选: 仅当企业配置了专属 API 域名时才新增 TRAECLI_HOST
+      TRAECLI_HOST: ${{ secrets.TRAECLI_HOST }}
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码 (PR 合并后状态, 完整历史)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-      # 安装 traecli(agent) 或用官方 agent action
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+      - name: 安装 TraeCode CLI 2.0 (官方公网脚本)
+        run: |
+          sh -c "$(curl -fsSL https://trae.cn/trae-cli/install_v2.sh)"
+          export PATH="$HOME/.local/bin:$PATH"
+          command -v traecli || echo "traecli 不在 PATH, 请检查安装脚本实际目录"
+          traecli --version
 
-      # 注入隐私令牌，供 agent 调 GitHub API 提交 review
-      - name: AI Code Review
+      - name: 校验登录状态
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          traecli doctor || echo "doctor 检出告警, 继续执行; 若 review 失败请核对 PAT 与旗舰版套餐"
+
+      - name: AI 审查 (traecli review 对比基线分支)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          # stdout 为审查正文, stderr 为运行日志, 分开落盘便于透传与排障
+          traecli review --base "$BASE_SHA" > /tmp/code_review_result.md 2>/tmp/code_review_stderr.log || true
+          if [ -s /tmp/code_review_result.md ]; then
+            echo "审查完成: $(wc -l < /tmp/code_review_result.md) 行"
+          else
+            echo "审查输出为空, 运行日志如下:"
+            cat /tmp/code_review_stderr.log
+          fi
+
+      - name: 提交 review 评论到 PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          traecli review \
-            --pr $PR_NUMBER \
-            --base $BASE_SHA --head $HEAD_SHA
+          if [ -s /tmp/code_review_result.md ]; then
+            gh pr review "$PR_NUMBER" --comment --body-file /tmp/code_review_result.md
+          else
+            echo "审查输出为空, 跳过提交评论"
+          fi
